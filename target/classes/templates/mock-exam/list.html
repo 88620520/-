@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>模拟考试 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mt-4">
+        <h2>模拟考试列表</h2>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="list-group">
+                    <div th:each="exam : ${exams}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${exam.name}">考试名称</h5>
+                        </div>
+                        <p class="mb-1" th:text="${exam.description}">考试描述</p>
+                        <a th:href="@{'/mock-exams/' + ${exam.id}}" 
+                           class="btn btn-primary btn-sm mt-2">开始考试</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

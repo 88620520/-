@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>练习历史 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">在线考试系统</a>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="/exercises">练习</a>
+            <a class="nav-item nav-link" href="/mock-exams">模拟考试</a>
+            <a class="nav-item nav-link" href="/user/profile">个人中心</a>
+            <a class="nav-item nav-link" href="/logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>练习历史记录</h2>
+
+        <!-- 筛选条件 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{/user/history}" method="get" class="form-inline">
+                    <div class="form-group mr-3">
+                        <label class="mr-2">练习类型</label>
+                        <select class="form-control" name="type">
+                            <option value="">全部</option>
+                            <option value="CHAPTER">章节练习</option>
+                            <option value="MOCK">模拟考试</option>
+                        </select>
+                    </div>
+                    <div class="form-group mr-3">
+                        <label class="mr-2">时间范围</label>
+                        <input type="date" class="form-control mr-2" name="startDate">
+                        <span>至</span>
+                        <input type="date" class="form-control ml-2" name="endDate">
+                    </div>
+                    <button type="submit" class="btn btn-primary">查询</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 历史记录列表 -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>类型</th>
+                        <th>章节/试卷</th>
+                        <th>题目数</th>
+                        <th>正确数</th>
+                        <th>正确率</th>
+                        <th>用时</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="record : ${records}">
+                        <td th:text="${#dates.format(record.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                        <td th:text="${record.type}">章节练习</td>
+                        <td th:text="${record.name}">第一章</td>
+                        <td th:text="${record.questionCount}">10</td>
+                        <td th:text="${record.correctCount}">8</td>
+                        <td th:text="${record.correctRate + '%'}">80%</td>
+                        <td th:text="${record.duration + '分钟'}">15分钟</td>
+                        <td>
+                            <a th:href="@{'/exercises/result/' + ${record.id}}" class="btn btn-sm btn-info">查看详情</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <nav th:if="${totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/user/history(page=${currentPage - 1})}">上一页</a>
+                </li>
+                <li class="page-item" th:each="page : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${page == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/user/history(page=${page})}" th:text="${page}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/user/history(page=${currentPage + 1})}">下一页</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html> 

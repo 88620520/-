@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>注册 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .register-page {
+            background: linear-gradient(135deg, #97e7f3 0%, #f6cdea 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .brand-logo {
+            font-size: 24px;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .password-requirements {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+        .password-strength {
+            height: 4px;
+            margin-top: 0.5rem;
+            border-radius: 2px;
+            background-color: #e9ecef;
+        }
+        .password-strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="register-page">
+    <div class="container">
+        <div class="auth-container">
+            <div class="brand-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>logon</h2>
+            </div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}">
+                错误信息
+            </div>
+            <form th:action="@{/register}" method="post" id="registerForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="username" name="username" required
+                               pattern="[a-zA-Z0-9_]{4,20}" title="用户名长度4-20位，只能包含字母、数字和下划线">
+                    </div>
+                    <small class="form-text text-muted">用户名长度4-20位，只能包含字母、数字和下划线</small>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <input type="password" class="form-control" id="password" name="password" required
+                               pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$">
+                    </div>
+                    <div class="password-requirements">
+                        密码要求：
+                        <ul>
+                            <li>至少6个字符</li>
+                            <li>包含字母和数字</li>
+                        </ul>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">注册</button>
+                <div class="text-center mt-3">
+                    <a th:href="@{/login}" class="text-primary">已有账号？立即登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        // 密码强度检测
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('strengthBar');
+            let strength = 0;
+            
+            if(password.length >= 8) strength += 25;
+            if(password.match(/[A-Z]/)) strength += 25;
+            if(password.match(/[a-z]/)) strength += 25;
+            if(password.match(/[0-9]/)) strength += 25;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if(strength <= 25) {
+                strengthBar.style.backgroundColor = '#dc3545';
+            } else if(strength <= 50) {
+                strengthBar.style.backgroundColor = '#ffc107';
+            } else if(strength <= 75) {
+                strengthBar.style.backgroundColor = '#17a2b8';
+            } else {
+                strengthBar.style.backgroundColor = '#28a745';
+            }
+        });
+
+        // 表单验证
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if(password !== confirmPassword) {
+                e.preventDefault();
+                alert('两次输入的密码不一致');
+            }
+        });
+    </script>
+</body>
+</html> 

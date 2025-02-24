@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>章节管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">在线考试系统</a>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="/admin/questions">题库管理</a>
+            <a class="nav-item nav-link" href="/admin/chapters">章节管理</a>
+            <a class="nav-item nav-link" href="/logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>章节管理</h2>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#addChapterModal">添加章节</button>
+        </div>
+
+        <!-- 章节列表 -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>章节名称</th>
+                        <th>所属课程</th>
+                        <th>题目数量</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="chapter : ${chapters}">
+                        <td th:text="${chapter.id}">1</td>
+                        <td th:text="${chapter.name}">第一章</td>
+                        <td th:text="${chapter.courseName}">Java程序设计</td>
+                        <td th:text="${chapter.questionCount}">10</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" th:onclick="'editChapter(' + ${chapter.id} + ')'">编辑</button>
+                            <button class="btn btn-sm btn-danger" th:onclick="'deleteChapter(' + ${chapter.id} + ')'">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 添加章节模态框 -->
+        <div class="modal fade" id="addChapterModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">添加章节</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="chapterForm">
+                            <div class="form-group">
+                                <label>章节名称</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>所属课程</label>
+                                <select class="form-control" name="courseId" required>
+                                    <option th:each="course : ${courses}"
+                                            th:value="${course.id}"
+                                            th:text="${course.name}">Java程序设计</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="submitChapter()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <script>
+        function submitChapter() {
+            const formData = new FormData(document.getElementById('chapterForm'));
+            const data = Object.fromEntries(formData.entries());
+
+            $.ajax({
+                url: '/api/chapters',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function() {
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('添加失败：' + xhr.responseText);
+                }
+            });
+        }
+
+        function editChapter(id) {
+            // 实现编辑功能
+        }
+
+        function deleteChapter(id) {
+            if (confirm('确定要删除这个章节吗？')) {
+                $.ajax({
+                    url: '/api/chapters/' + id,
+                    type: 'DELETE',
+                    success: function() {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('删除失败：' + xhr.responseText);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

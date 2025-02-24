@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>题目管理 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>题目管理</h2>
+        <button type="button" class="btn btn-primary" id="addQuestionButton">
+            添加题目
+        </button>
+    </div>
+
+    <!-- 题目列表 -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>章节</th>
+                <th>类型</th>
+                <th>题目内容</th>
+                <th>难度</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="question : ${questions}">
+                <td th:text="${question.id}">1</td>
+                <td th:text="${question.chapterName}">Java基础语法</td>
+                <td th:text="${question.type}">单选题</td>
+                <td th:text="${question.content}">题目内容</td>
+                <td th:text="${question.difficulty}">简单</td>
+                <td>
+                    <button class="btn btn-sm btn-info" th:onclick="'editQuestion(' + ${question.id} + ')'">编辑</button>
+                    <button class="btn btn-sm btn-danger" th:onclick="'deleteQuestion(' + ${question.id} + ')'">删除</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 添加/编辑题目的模态框 -->
+    <div class="modal fade" id="addQuestionModal" tabindex="-1" role="dialog" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addQuestionModalLabel">添加题目</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="questionForm" th:action="@{/admin/questions/add}" method="post">
+                        <input type="hidden" name="id" id="questionId"> <!-- 隐藏字段，用于存储编辑时的题目ID -->
+                        <div class="form-group">
+                            <label>所属章节</label>
+                            <select class="form-control" name="chapterId" id="chapterId" required>
+                                <option th:each="chapter : ${chapters}"
+                                        th:value="${chapter.id}"
+                                        th:text="${chapter.name}">章节名称</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>题目类型</label>
+                            <select class="form-control" name="type" id="type" required>
+                                <option value="SINGLE_CHOICE">单选题</option>
+                                <option value="MULTIPLE_CHOICE">多选题</option>
+                                <option value="TRUE_FALSE">判断题</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>题目内容</label>
+                            <textarea class="form-control" name="content" id="content" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>选项（每行一个选项，判断题无需填写）</label>
+                            <textarea class="form-control" name="options" id="options" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>正确答案</label>
+                            <input type="text" class="form-control" name="correctAnswer" id="correctAnswer" required>
+                            <small class="form-text text-muted">
+                                单选题填写选项序号(A/B/C/D)，多选题填写多个选项序号(如：ABC)，判断题填写TRUE或FALSE
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label>题目解析</label>
+                            <textarea class="form-control" name="analysis" id="analysis" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>难度</label>
+                            <select class="form-control" name="difficulty" id="difficulty" required>
+                                <option value="EASY">简单</option>
+                                <option value="MEDIUM">中等</option>
+                                <option value="HARD">困难</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" form="questionForm" class="btn btn-primary" id="saveQuestionBtn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+
+<script>
+
+
+
+    // 显示模态框
+    $('#addQuestionButton').on('click', function() {
+        $('#addQuestionModalLabel').text('添加题目');
+        $('#questionForm')[0].reset();  // 清空表单
+        $('#questionId').val('');  // 清空ID
+        $('#saveQuestionBtn').text('保存');  // 修改按钮文字
+        $('#addQuestionModal').modal('show');
+    });
+
+    // 编辑题目
+    function editQuestion(id) {
+        $.ajax({
+            url: '/api/questions/get/' + id,  // 获取题目详细信息
+            type: 'GET',
+            success: function(data) {
+                $('#addQuestionModalLabel').text('编辑题目');
+                $('#questionId').val(data.id);
+                $('#chapterId').val(data.chapterId);
+                $('#type').val(data.type);
+                $('#content').val(data.content);
+                $('#options').val(data.options);
+                $('#correctAnswer').val(data.correctAnswer);
+                $('#analysis').val(data.analysis);
+                $('#difficulty').val(data.difficulty);
+                $('#saveQuestionBtn').text('更新');  // 修改按钮文字
+                $('#addQuestionModal').modal('show');
+            },
+            error: function(xhr) {
+                alert('加载题目失败：' + xhr.responseText);
+            }
+        });
+    }
+
+    // 提交表单并更新题目
+    $('#questionForm').on('submit', function(e) {
+        e.preventDefault();
+
+        var actionUrl = ($('#questionId').val() == '') ? '/admin/questions/add' : '/api/questions/edit/' + $('#questionId').val();  // 使用 edit 更新接口
+        if(actionUrl=='/admin/questions/add'){
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    alert('题目添加成功');
+                    $('#addQuestionModal').modal('hide');
+                    location.reload();  // 刷新页面显示新添加的题目
+                },
+                error: function(xhr) {
+                    alert('添加失败：' + xhr.responseText);
+                }
+            });
+        }else{
+            $.ajax({
+                url: actionUrl,
+                type: actionUrl=='/admin/questions/add'?'POST':'PUT',  // 使用 PUT 请求
+                contentType: 'application/json',  // 设置请求头为 JSON
+                dataType: 'json',  // 响应数据类型为 JSON
+                data: JSON.stringify($(this).serializeObject()),  // 将表单数据转为 JSON 字符串
+                success: function(response) {
+                    alert('题目保存成功');
+                    $('#addQuestionModal').modal('hide');
+                    location.reload();  // 刷新页面显示更新后的题目
+                },
+                error: function(xhr) {
+                    alert(xhr.responseText);
+                    $('#addQuestionModal').modal('hide');
+                    location.reload();
+                }
+            });
+        }
+
+    });
+
+    // 将表单数据转换为 JSON 对象
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+
+
+    // 删除题目方法
+    function deleteQuestion(id) {
+        if (confirm('确定要删除这道题目吗？')) {
+            $.post('/admin/questions/delete', { id: id })
+                .done(function(response) {
+                    alert('删除成功');
+                    location.reload();
+                })
+                .fail(function(xhr) {
+                    alert('删除失败：' + xhr.responseText);
+                });
+        }
+    }
+</script>
+</body>
+</html>

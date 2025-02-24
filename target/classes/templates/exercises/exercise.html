@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>练习题目 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .container {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .btn-outline-primary {
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .form-check {
+            margin-bottom: 15px;
+        }
+
+        .form-check label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .form-check input {
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .form-check:hover label {
+            background-color: #f8f9fa;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 20px; /* 字母与选项文字的间距宽度 */
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            width: 100%;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:if="${isTypeExercise}" th:text="${title}">题型练习</h2>
+        <h2 th:unless="${isTypeExercise}" th:text="${chapter.name}">章节练习</h2>
+        <a th:if="${isTypeExercise}" href="/" class="btn btn-outline-primary">返回首页</a>
+        <a th:unless="${isTypeExercise}" href="/exercises" class="btn btn-outline-primary">返回章节列表</a>
+    </div>
+
+    <form id="exerciseForm" method="post">
+        <div th:if="${isTypeExercise}">
+            <input type="hidden" name="exerciseType" value="type">
+        </div>
+        <div th:unless="${isTypeExercise}">
+            <input type="hidden" name="exerciseType" value="chapter">
+            <input type="hidden" name="chapterId" th:value="${chapter.id}">
+        </div>
+
+        <div th:if="${not #lists.isEmpty(questions)}" class="mb-5">
+            <div class="card mb-3" th:each="question, stat : ${questions}">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span th:text="${stat.count + '、'}">题目编号</span>
+                        <span th:if="${question.type == 'SINGLE_CHOICE'}" th:text="'(单选题)'">单选题</span>
+                        <span th:if="${question.type == 'MULTIPLE_CHOICE'}" th:text="'(多选题)'">多选题</span>
+                        <span th:if="${question.type == 'TRUE_FALSE'}" th:text="'(判断题)'">判断题</span>
+                        <span th:text="${question.content}">题目内容</span>
+                    </h5>
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+
+                    <!-- 单选题 -->
+                    <div th:if="${question.type == 'SINGLE_CHOICE'}" th:each="option, stat : ${question.optionList}" class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio"
+                                   th:name="'answer_' + ${question.id}"
+                                   th:value="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">
+                            <span class="option-letter" th:text="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">A</span>
+                            <span th:text="${option}">选项</span>
+                        </label>
+                    </div>
+
+                    <!-- 多选题 -->
+                    <div th:if="${question.type == 'MULTIPLE_CHOICE'}" th:each="option, stat : ${question.optionList}" class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox"
+                                   th:name="'answer_' + ${question.id}"
+                                   th:value="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">
+                            <span class="option-letter" th:text="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">A</span>
+                            <span th:text="${option}">选项</span>
+                        </label>
+                    </div>
+
+                    <!-- 判断题 -->
+                    <div th:if="${question.type == 'TRUE_FALSE'}" class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio"
+                                   th:name="'answer_' + ${question.id}" value="TRUE">
+                            正确
+                        </label>
+                    </div>
+                    <div th:if="${question.type == 'TRUE_FALSE'}" class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio"
+                                   th:name="'answer_' + ${question.id}" value="FALSE">
+                            错误
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg">提交答案</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#exerciseForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var answers = {};
+            $('input[type="hidden"][name="questionId"]').each(function() {
+                var questionId = $(this).val();
+                answers[questionId] = '';
+            });
+
+            $('input[name^="answer_"]').each(function() {
+                var questionId = $(this).attr('name').split('_')[1];
+                if ($(this).is(':radio') && $(this).is(':checked')) {
+                    answers[questionId] = $(this).val();
+                } else if ($(this).is(':checkbox') && $(this).is(':checked')) {
+                    if (answers[questionId] === '') {
+                        answers[questionId] = $(this).val();
+                    } else {
+                        answers[questionId] += ',' + $(this).val();
+                    }
+                }
+            });
+
+            var exerciseType = $('input[name="exerciseType"]').val();
+            var submitUrl = exerciseType === 'type' ? '/exercises/type/submit' : '/exercises/submit';
+
+            $.ajax({
+                url: submitUrl,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    answers: answers,
+                    chapterId: $('input[name="chapterId"]').val()
+                }),
+                success: function(response) {
+                    document.open();
+                    document.write(response);
+                    document.close();
+                },
+                error: function(xhr) {
+                    alert('提交失败：' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

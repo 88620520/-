@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>个人中心 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9; /* 浅灰背景，更柔和 */
+        }
+        .navbar {
+            margin-bottom: 30px;
+        }
+        .card {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* 加强阴影效果 */
+            border-radius: 12px; /* 圆角增强 */
+            border: none; /* 去掉边框 */
+        }
+        .card-header {
+            border-bottom: none; /* 去掉标题下方的默认边框 */
+            font-size: 18px; /* 提高字体大小 */
+            font-weight: 600; /* 加粗字体 */
+        }
+        .form-group label {
+            font-weight: 600; /* 标签加粗 */
+            color: #495057; /* 深灰色字体 */
+        }
+        .form-control[readonly] {
+            background-color: #f1f3f5; /* 更浅的只读背景 */
+            border: none; /* 去掉边框 */
+            font-weight: 500; /* 字体稍微加粗 */
+            color: #6c757d; /* 字体颜色更显眼 */
+        }
+        .list-group-item {
+            border: none; /* 去掉列表分隔线 */
+            padding: 15px; /* 增加列表项的上下间距 */
+            background-color: #fff; /* 保持背景一致 */
+            border-radius: 8px; /* 列表项圆角 */
+            margin-bottom: 10px; /* 列表项间隔 */
+        }
+        .btn-link {
+            font-weight: bold;
+            text-decoration: underline; /* 增加下划线强调链接 */
+            color: #007bff; /* 蓝色更显眼 */
+        }
+        .btn-primary {
+            width: 100%;
+            font-weight: bold;
+            letter-spacing: 0.5px; /* 增加字母间距 */
+        }
+        .card-header.bg-primary {
+            background-color: #007bff; /* 调整为标准蓝色 */
+        }
+        .card-header.bg-success {
+            background-color: #28a745; /* 调整为标准绿色 */
+        }
+        .text-right a:hover {
+            text-decoration: none; /* 鼠标悬停去掉链接下划线 */
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">在线考试系统</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/exercises">章节练习</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/mock-exams">模拟考试</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/user/profile">个人中心</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">退出</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- 主内容区域 -->
+<div class="container">
+    <div class="row">
+        <!-- 左侧个人信息卡片 -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5>个人信息</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/user/profile/update}" method="post">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" class="form-control" th:value="${user.username}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱</label>
+                            <input type="email" class="form-control" name="email" th:value="${user.email}" required>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧操作记录 -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h5>最近活动记录</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">2024-12-12：完成了“Java 基础练习”。</li>
+                        <li class="list-group-item">2024-12-10：参加了“模拟考试-算法部分”。</li>
+                        <li class="list-group-item">2024-12-08：注册成为系统用户。</li>
+                    </ul>
+                    <div class="text-right mt-3">
+                        <a href="/user/history" class="btn btn-link">查看全部记录</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 脚本 -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

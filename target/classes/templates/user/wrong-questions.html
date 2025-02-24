@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>错题本 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">在线考试系统</a>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="/exercises">练习</a>
+            <a class="nav-item nav-link" href="/mock-exams">模拟考试</a>
+            <a class="nav-item nav-link" href="/user/profile">个人中心</a>
+            <a class="nav-item nav-link active" href="/user/wrong-questions">错题本</a>
+            <a class="nav-item nav-link" href="/logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>错题本</h2>
+
+        <!-- 筛选条件 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{/user/wrong-questions}" method="get" class="form-inline">
+                    <div class="form-group mr-3">
+                        <label class="mr-2">章节</label>
+                        <select class="form-control" name="chapterId">
+                            <option value="">全部</option>
+                            <option th:each="chapter : ${chapters}" 
+                                    th:value="${chapter.id}" 
+                                    th:text="${chapter.name}">第一章</option>
+                        </select>
+                    </div>
+                    <div class="form-group mr-3">
+                        <label class="mr-2">题型</label>
+                        <select class="form-control" name="type">
+                            <option value="">全部</option>
+                            <option value="SINGLE_CHOICE">单选题</option>
+                            <option value="MULTIPLE_CHOICE">多选题</option>
+                            <option value="TRUE_FALSE">判断题</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">查询</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 错题列表 -->
+        <div class="wrong-questions">
+            <div th:each="question : ${wrongQuestions}" class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title" th:text="${question.content}">题目内容</h5>
+                        <span class="badge badge-primary" th:text="${question.typeName}">单选题</span>
+                    </div>
+                    
+                    <!-- 选项列表 -->
+                    <div class="options mb-3">
+                        <div th:each="option : ${question.options}" class="form-check">
+                            <input class="form-check-input" type="radio" disabled
+                                   th:checked="${option.isUserAnswer}">
+                            <label class="form-check-label" 
+                                   th:class="${option.isCorrect ? 'text-success' : (option.isUserAnswer ? 'text-danger' : '')}"
+                                   th:text="${option.content}">选项内容</label>
+                        </div>
+                    </div>
+
+                    <!-- 错误次数和最近错误时间 -->
+                    <div class="text-muted small mb-2">
+                        <span>错误次数：<span th:text="${question.wrongCount}">3</span></span>
+                        <span class="ml-3">最近错误：<span th:text="${#dates.format(question.lastWrongTime, 'yyyy-MM-dd')}">2024-01-01</span></span>
+                    </div>
+
+                    <!-- 解析 -->
+                    <div class="mt-3">
+                        <h6>解析：</h6>
+                        <p th:text="${question.analysis}">题目解析内容</p>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-success" th:onclick="'markAsMastered(' + ${question.id} + ')'">标记已掌握</button>
+                        <button class="btn btn-sm btn-info" th:onclick="'practiceAgain(' + ${question.id} + ')'">再次练习</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <nav th:if="${totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/user/wrong-questions(page=${currentPage - 1})}">上一页</a>
+                </li>
+                <li class="page-item" th:each="page : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${page == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/user/wrong-questions(page=${page})}" th:text="${page}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/user/wrong-questions(page=${currentPage + 1})}">下一页</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        function markAsMastered(questionId) {
+            if (confirm('确定将此题标记为已掌握吗？')) {
+                $.post('/api/wrong-questions/' + questionId + '/master', function() {
+                    location.reload();
+                });
+            }
+        }
+
+        function practiceAgain(questionId) {
+            window.location.href = '/exercises/practice?questionId=' + questionId;
+        }
+    </script>
+</body>
+</html> 
