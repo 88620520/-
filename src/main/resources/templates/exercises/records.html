@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>练习记录 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">练习记录</h2>
+        
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>练习类型</th>
+                        <th>题目数量</th>
+                        <th>正确率</th>
+                        <th>练习时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="record : ${records}">
+                        <td th:text="${record.type}">章节练习</td>
+                        <td th:text="${record.questionCount}">10</td>
+                        <td th:text="${#numbers.formatDecimal(record.correctRate, 1, 1) + '%'}">80.0%</td>
+                        <td th:text="${#temporals.format(record.createdAt, 'yyyy-MM-dd HH:mm')}">2024-03-01 14:30</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+</body>
+</html> 

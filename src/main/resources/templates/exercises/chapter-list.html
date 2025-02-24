@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章节列表</title>
+    <style>
+        /* 统一字体和背景 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 页面标题 */
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        /* 章节列表容器 */
+        .chapter-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 单个章节项 */
+        .chapter-item {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 章节链接 */
+        .chapter-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 章节项悬停效果 */
+        .chapter-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 章节标题 */
+        .chapter-item h3 {
+            font-size: 1.6em;
+            color: #333;
+            margin: 0;
+            padding-bottom: 10px;
+        }
+
+        /* 章节描述 */
+        .chapter-item p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 0;
+        }
+
+        /* 章节项悬停时背景色变化 */
+        .chapter-link:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* 调整页面间距 */
+        .chapter-list {
+            padding-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+<h2>章节练习</h2>
+<div class="chapter-list">
+    <div th:each="chapter : ${chapters}" class="chapter-item">
+        <a th:href="@{/exercises/{id}(id=${chapter.id})}" class="chapter-link">
+            <h3 th:text="${chapter.name}">章节名称</h3>
+            <p th:text="${chapter.description}">章节描述</p >
+        </a >
+    </div>
+</div>
+</body>
+</html>

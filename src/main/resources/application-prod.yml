@@ -1,0 +1,23 @@
+spring:
+  thymeleaf:
+    cache: true
+  resources:
+    chain:
+      cache: true
+      compressed: true
+    cache:
+      period: 86400  # 24小时
+      
+  redis:
+    timeout: 30000
+    lettuce:
+      pool:
+        max-active: 16
+        max-wait: -1
+        max-idle: 16
+        min-idle: 8
+
+logging:
+  level:
+    root: warn
+    com.example.exam: info 

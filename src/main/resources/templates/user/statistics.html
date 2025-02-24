@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>练习统计 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">在线考试系统</a>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="/exercises">练习</a>
+            <a class="nav-item nav-link" href="/mock-exams">模拟考试</a>
+            <a class="nav-item nav-link" href="/user/profile">个人中心</a>
+            <a class="nav-item nav-link active" href="/user/statistics">练习统计</a>
+            <a class="nav-item nav-link" href="/logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>练习统计分析</h2>
+
+        <!-- 总体统计 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3 th:text="${statistics.totalExercises}">100</h3>
+                        <p class="mb-0">总练习次数</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 th:text="${statistics.totalQuestions}">500</h3>
+                        <p class="mb-0">总题目数</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 th:text="${statistics.averageScore + '%'}">85%</h3>
+                        <p class="mb-0">平均正确率</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3 th:text="${statistics.totalTime + '小时'}">10小时</h3>
+                        <p class="mb-0">总练习时长</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表展示 -->
+        <div class="row">
+            <!-- 练习趋势图 -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">练习趋势</h5>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 题型分布图 -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">题型分布</h5>
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 章节掌握度 -->
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">章节掌握度</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>章节</th>
+                                        <th>练习次数</th>
+                                        <th>题目数</th>
+                                        <th>正确率</th>
+                                        <th>掌握度</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="chapter : ${chapterStats}">
+                                        <td th:text="${chapter.name}">第一章</td>
+                                        <td th:text="${chapter.exerciseCount}">10</td>
+                                        <td th:text="${chapter.questionCount}">50</td>
+                                        <td th:text="${chapter.correctRate + '%'}">85%</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     th:style="'width: ' + ${chapter.masteryRate} + '%'"
+                                                     th:text="${chapter.masteryRate + '%'}">75%</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // 练习趋势图
+        const trendData = /*[[${trendData}]]*/ {};
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: trendData.dates,
+                datasets: [{
+                    label: '练习题数',
+                    data: trendData.counts,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        // 题型分布图
+        const typeData = /*[[${typeData}]]*/ {};
+        new Chart(document.getElementById('typeChart'), {
+            type: 'pie',
+            data: {
+                labels: typeData.labels,
+                datasets: [{
+                    data: typeData.data,
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            }
+        });
+    </script>
+</body>
+</html> 

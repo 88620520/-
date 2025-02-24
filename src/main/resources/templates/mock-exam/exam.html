@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>模拟考试 - 在线考试系统</title>
+    <!-- 引入 Bootstrap 4 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 优化卡片样式 */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 24px;
+            border: none;
+        }
+
+        .card-body {
+            padding: 24px;
+            background-color: #f9f9f9;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .form-check {
+            margin-bottom: 15px;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #fff;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .form-check:hover .form-check-label {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .option-letter {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container mt-4">
+    <h2 class="mb-4">模拟考试</h2>
+    <!-- 考试说明 -->
+    <div class="alert alert-info">
+        <h5>考试说明</h5>
+        <p>
+            本次考试满分为 <strong>120 分</strong>，题型及分值如下：
+        </p>
+        <ul>
+            <li>单选题：共 4 道，每道 <strong>10 分</strong>。</li>
+            <li>多选题：共 4 道，每道 <strong>10 分</strong>。</li>
+            <li>判断题：共 4 道，每道 <strong>10 分</strong>。</li>
+        </ul>
+    </div>
+    <form id="examForm">
+        <!-- 单选题 -->
+        <div th:if="${not #lists.isEmpty(singleChoiceQuestions)}">
+            <h3 class="question-header">一、单选题</h3>
+            <div th:each="question, stat : ${singleChoiceQuestions}" class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${stat.count + '、' + question.content}">题目内容</h5>
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+                    <div th:each="option, stat : ${question.optionList}" class="form-check">
+                        <input class="form-check-input" type="radio"
+                               th:id="'answer_' + ${question.id} + '_' + ${stat.count}"
+                               th:name="'answer_' + ${question.id}"
+                               th:value="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">
+                        <label class="form-check-label"
+                               th:for="'answer_' + ${question.id} + '_' + ${stat.count}">
+                            <span class="option-letter" th:text="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}"></span>
+                            <span th:text="${option}">选项</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 多选题 -->
+        <div th:if="${not #lists.isEmpty(multipleChoiceQuestions)}">
+            <h3 class="question-header">二、多选题</h3>
+            <div th:each="question, stat : ${multipleChoiceQuestions}" class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${stat.count + '、' + question.content}">题目内容</h5>
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+                    <div th:each="option, stat : ${question.optionList}" class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               th:id="'answer_' + ${question.id} + '_' + ${stat.count}"
+                               th:name="'answer_' + ${question.id}"
+                               th:value="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}">
+                        <label class="form-check-label"
+                               th:for="'answer_' + ${question.id} + '_' + ${stat.count}">
+                            <span class="option-letter" th:text="${stat.count == 1 ? 'A' : stat.count == 2 ? 'B' : stat.count == 3 ? 'C' : 'D'}"></span>
+                            <span th:text="${option}">选项</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 判断题 -->
+        <div th:if="${not #lists.isEmpty(trueFalseQuestions)}">
+            <h3 class="question-header">三、判断题</h3>
+            <div th:each="question, stat : ${trueFalseQuestions}" class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${stat.count + '、' + question.content}">题目内容</h5>
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio"
+                               th:id="'answer_' + ${question.id} + '_true'"
+                               th:name="'answer_' + ${question.id}" value="TRUE">
+                        <label class="form-check-label"
+                               th:for="'answer_' + ${question.id} + '_true'">正确</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio"
+                               th:id="'answer_' + ${question.id} + '_false'"
+                               th:name="'answer_' + ${question.id}" value="FALSE">
+                        <label class="form-check-label"
+                               th:for="'answer_' + ${question.id} + '_false'">错误</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">提交答案</button>
+    </form>
+</div>
+
+<!-- 引入 jQuery 和 Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        let timerDuration = 10 * 60; // 10分钟倒计时，单位为秒
+        const timerElement = $('<div>')
+            .addClass('alert alert-warning text-center mt-3')
+            .attr('id', 'timer')
+            .text('剩余时间：10:00')
+            .prependTo('.container');
+
+        function updateTimerDisplay(secondsLeft) {
+            const minutes = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+            const seconds = (secondsLeft % 60).toString().padStart(2, '0');
+            timerElement.text(`剩余时间：${minutes}:${seconds}`);
+        }
+
+        const countdown = setInterval(() => {
+            timerDuration--;
+            updateTimerDisplay(timerDuration);
+
+            if (timerDuration <= 0) {
+                clearInterval(countdown);
+                alert('时间到，试卷将自动提交！');
+                $('#examForm').submit(); // 自动提交表单
+            }
+        }, 1000);
+
+        $('#examForm').on('submit', function(e) {
+            e.preventDefault();
+            clearInterval(countdown); // 停止倒计时
+
+            // 收集答案
+            var answers = [];
+            $('input[name="questionId"]').each(function() {
+                var questionId = $(this).val();
+                var answer = '';
+
+                // 获取答案
+                var inputs = $('input[name="answer_' + questionId + '"]:checked');
+                if (inputs.length > 0) {
+                    if (inputs.length === 1) {
+                        answer = inputs.val();
+                    } else {
+                        // 多选题，合并答案
+                        answer = inputs.map(function() {
+                            return $(this).val();
+                        }).get().join('');
+                    }
+                }
+
+                answers.push({
+                    questionId: questionId,
+                    answer: answer
+                });
+            });
+
+            // 提交表单
+            var form = $('<form>')
+                .attr('method', 'post')
+                .attr('action', '/mock-exams/submit');
+
+            $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', 'answers')
+                .val(JSON.stringify(answers))
+                .appendTo(form);
+
+            form.appendTo('body').submit();
+        });
+
+        // 初始化定时器显示
+        updateTimerDisplay(timerDuration);
+    });
+</script>
+
+</body>
+</html>

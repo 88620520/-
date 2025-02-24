@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>考试结果 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 优化标题样式 */
+        h2 {
+            font-weight: bold;
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* 卡片样式 */
+        .card {
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            font-size: 16px;
+        }
+
+        .card-body p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            border-radius: 5px;
+            font-size: 14px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        /* 表格样式 */
+        .row p {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* 折叠样式 */
+        .collapse {
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 18px;
+            }
+
+            .card-body p {
+                font-size: 12px;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container mt-4">
+    <h2 class="mb-4">考试结果</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">得分统计</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <p>总题数：<span th:text="${totalCount}">10</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p>正确题数：<span th:text="${correctCount}">8</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p>正确率：<span th:text="${#numbers.formatDecimal(correctRate, 1, 1) + '%'}">80.0%</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p>得分：<span th:text="${correctCount * 10}">90</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion">
+        <div th:each="question, stat : ${questions}" class="card">
+            <div class="card-header" th:id="${'heading' + stat.index}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button"
+                            data-toggle="collapse" th:attr="data-target='#collapse' + ${stat.index}">
+                        <span th:text="${stat.count + '、' + question.content}">题目内容</span>
+                        <span th:class="${question.isCorrect ? 'text-success' : 'text-danger'}"
+                              th:text="${question.isCorrect ? '（正确）' : '（错误）'}"></span>
+                    </button>
+                </h2>
+            </div>
+            <div class="collapse" th:attr="id='collapse' + ${stat.index}">
+                <div class="card-body">
+                    <p>你的答案：<span th:text="${question.userAnswer}">A</span></p>
+                    <p>正确答案：<span th:text="${question.correctAnswer}">A</span></p>
+                    <p th:if="${question.analysis}">
+                        解析：<span th:text="${question.analysis}">题目解析</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="/mock-exams" class="btn btn-primary">再考一次</a>
+        <a href="/" class="btn btn-secondary">返回首页</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

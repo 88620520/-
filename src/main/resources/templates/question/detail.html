@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>题目详情 - 在线考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">在线考试系统</a>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="/exercises">练习</a>
+            <a class="nav-item nav-link" href="/mock-exams">模拟考试</a>
+            <a class="nav-item nav-link" href="/user/profile">个人中心</a>
+            <a class="nav-item nav-link" href="/logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h4 class="card-title" th:text="${question.content}">题目内容</h4>
+                    <span class="badge badge-primary" th:text="${question.typeName}">单选题</span>
+                </div>
+
+                <!-- 题目信息 -->
+                <div class="text-muted mb-3">
+                    <small>
+                        <span th:text="${question.chapterName}">第一章</span> |
+                        难度：<span th:text="${question.difficulty}">中等</span> |
+                        正确率：<span th:text="${question.correctRate + '%'}">85%</span>
+                    </small>
+                </div>
+
+                <!-- 选项 -->
+                <div class="options mb-4">
+                    <div th:if="${question.type != 'TRUE_FALSE'}" th:each="option : ${question.options}" class="form-check">
+                        <input class="form-check-input" type="radio" disabled
+                               th:checked="${option.isCorrect}">
+                        <label class="form-check-label" 
+                               th:class="${option.isCorrect ? 'text-success font-weight-bold' : ''}"
+                               th:text="${option.key + '. ' + option.value}">选项内容</label>
+                    </div>
+                    <div th:if="${question.type == 'TRUE_FALSE'}" class="form-check">
+                        <input class="form-check-input" type="radio" disabled
+                               th:checked="${question.answer == 'true'}">
+                        <label class="form-check-label"
+                               th:class="${question.answer == 'true' ? 'text-success font-weight-bold' : ''}">正确</label>
+                    </div>
+                    <div th:if="${question.type == 'TRUE_FALSE'}" class="form-check">
+                        <input class="form-check-input" type="radio" disabled
+                               th:checked="${question.answer == 'false'}">
+                        <label class="form-check-label"
+                               th:class="${question.answer == 'false' ? 'text-success font-weight-bold' : ''}">错误</label>
+                    </div>
+                </div>
+
+                <!-- 解析 -->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">题目解析</h5>
+                        <p class="card-text" th:text="${question.analysis}">解析内容</p>
+                    </div>
+                </div>
+
+                <!-- 相关知识点 -->
+                <div class="mt-4">
+                    <h5>相关知识点</h5>
+                    <div class="d-flex flex-wrap">
+                        <span th:each="point : ${question.knowledgePoints}" 
+                              class="badge badge-info mr-2 mb-2" 
+                              th:text="${point}">知识点</span>
+                    </div>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="mt-4">
+                    <h5>做题统计</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 th:text="${question.totalAttempts}">100</h3>
+                                    <p class="mb-0">总尝试次数</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 th:text="${question.correctCount}">85</h3>
+                                    <p class="mb-0">正确次数</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 th:text="${question.correctRate + '%'}">85%</h3>
+                                    <p class="mb-0">正确率</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相似题目 -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">相似题目</h5>
+                <div class="list-group">
+                    <a th:each="similar : ${similarQuestions}" 
+                       th:href="@{'/questions/' + ${similar.id}}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1" th:text="${similar.content}">题目内容</h6>
+                            <small th:text="${similar.typeName}">单选题</small>
+                        </div>
+                        <small class="text-muted" th:text="${similar.chapterName}">第一章</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

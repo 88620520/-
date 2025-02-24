@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>练习结果 - 在线考试系统</title>
+    <!-- 引入 Bootstrap 5 和自定义样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header button {
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+        h2, h5 {
+            font-weight: 600;
+        }
+        .accordion .card-header {
+            background-color: #f1f3f5;
+            border: none;
+        }
+        .text-success, .text-danger {
+            font-weight: 700;
+        }
+        .btn-block {
+            text-align: start;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<!-- 主容器 -->
+<div class="container mt-5">
+    <!-- 标题 -->
+    <h2 class="text-center mb-4">练习结果</h2>
+
+    <!-- 得分统计 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title text-primary">得分统计</h5>
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <p>总题数：<span class="fw-bold" th:text="${totalCount}">10</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p>正确题数：<span class="fw-bold text-success" th:text="${correctCount}">8</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p>正确率：<span class="fw-bold text-info" th:text="${#numbers.formatDecimal(correctRate, 1, 1) + '%'}">80.0%</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 题目列表 -->
+    <div class="accordion" id="questionList">
+        <div th:each="question, stat : ${questions}" class="card mb-3">
+            <div class="card-header" th:id="'heading' + ${stat.index}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block d-flex align-items-center" type="button"
+                            data-bs-toggle="collapse" th:data-bs-target="'#collapse' + ${stat.index}">
+                        <span th:text="${stat.count + '、' + question.content}">题目内容</span>
+                        <span class="ms-3" th:class="${question.isCorrect ? 'text-success' : 'text-danger'}"
+                              th:text="${question.isCorrect ? '（正确）' : '（错误）'}"></span>
+                    </button>
+                </h2>
+            </div>
+            <div th:id="'collapse' + ${stat.index}" class="collapse"
+                 data-bs-parent="#questionList">
+                <div class="card-body">
+                    <p>你的答案：<span class="text-primary" th:text="${question.userAnswer}">A</span></p>
+                    <p>正确答案：<span class="text-success" th:text="${question.correctAnswer}">A</span></p>
+                    <p th:if="${question.analysis}">
+                        解析：<span class="text-muted" th:text="${question.analysis}">题目解析</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 按钮 -->
+    <div class="d-flex justify-content-center mt-4">
+        <a href="/" class="btn btn-primary me-2">返回首页</a>
+        <a href="/exercises" class="btn btn-secondary">继续练习</a>
+    </div>
+</div>
+
+<!-- 引入脚本 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
